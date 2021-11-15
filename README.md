@@ -1,3 +1,3 @@
 # Position-aided Beam prediction: How useful GPS locations actually are?
 Repository for the code user in the paper...
-(everything will be made available soon)
+(everything will soon be made available)
