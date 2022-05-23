@@ -16,14 +16,14 @@ import pandas as pd
 import train_test_func as func
 
 # Folder with the outputs from loader.py:
-gathered_data_folder = os.path.join(os.getcwd(), 'Gathered_data')
+gathered_data_folder = os.path.join(os.getcwd(), 'Gathered_data_DEV')
 # Where every result folder will be saved too:
-save_folder =  os.path.join(os.getcwd(), r'saved_folder\scen8_results')
+save_folder =  os.path.join(os.getcwd(), r'saved_folder\results')
 
 # Variables to loop
 ai_strategies = ['KNN', 'LT', 'NN']       # 'KNN', 'LT', 'NN'
 norm_types = [1]                     # [1,2,3,4,5]
-scen_idxs = np.arange(1,9+1)   # [1,2,3,4,5,6,7,9]
+scen_idxs = [1] #np.arange(1,9+1)   # [1,2,3,4,5,6,7,9]
 n_beams_list = [64]          # [8, 16,32,64]
 noises = [0]                         # position noise in meters
 n_reps = 1                           # number repetitions of current settings.
@@ -33,7 +33,7 @@ use_cal_pos_for_scen = [3,4,8,9]        # [3,4,9] 8 also needs it!
 max_samples = 1e5                     # max samples to consider per scenario
 n_avgs = 1                           # number of runs to average
 train_val_test_split = [60,20,20]     # 0 on val uses test set to validate.    
-top_beams = np.arange(1,60)  # Collect stats for Top X predictions
+top_beams = np.arange(5) + 1  # Collect stats for Top X predictions
 force_seed = -1                       # When >= 0, sets data randimzation 
                                       # seed. Useful for data probing.
                                       # Otherwise, seed = run_idx.
