@@ -3,10 +3,8 @@ This is a python code package related to the following article:
 
 João Morais, and Ahmed Alkhateeb, "[Position Aided Beam prediction: How useful GPS locations actually are?](https://arxiv.org/abs/2205.09054)". (submitted to Globecomm 2022)
 
-# Abstract of the Article
-Millimeter-wave (mmWave) communication systems rely on narrow beams for achieving sufficient receive signal power. Adjusting these beams is typically associated with large training overhead, which becomes particularly critical for highlymobile applications. Intuitively, since optimal beam selection can benefit from the knowledge of the positions of communication terminals, there has been increasing interest in leveraging position data to reduce the overhead in mmWave beam prediction. Prior work, however, studied this problem using only synthetic data that generally does not accurately represent real-world measurements. In this paper, we investigate position-aided beam prediction using a real-world large-scale dataset to derive insights into precisely how much overhead can be saved in practice. Furthermore, we analyze which machine learning algorithms perform best, what factors degrade inference performance in real data, and which machine learning metrics are more meaningful in capturing the actual communication system performance.
+# Instructions to Reproduce the Results
 
-# Code Package Content 
 The scripts for generating the results in the paper. The data consists of Scenarios 1-9 of DeepSense6G dataset.
 
 **To reproduce the results, please follow these steps:**
@@ -19,6 +17,9 @@ Note: a version of the data is already included in the repository, under "Gather
 If you have any questions regarding the code and used dataset, please write to DeepSense 6G dataset forum https://deepsense6g.net/forum/ or contact [João Morais](mailto:joao@asu.edu?subject=[GitHub]%20Beam%20prediction%20implementation).
 
 For more details, consult the [Position-aided Beam Prediction task](https://deepsense6g.net/position-aided-beam-prediction/) page.
+
+# Abstract of the Article
+Millimeter-wave (mmWave) communication systems rely on narrow beams for achieving sufficient receive signal power. Adjusting these beams is typically associated with large training overhead, which becomes particularly critical for highlymobile applications. Intuitively, since optimal beam selection can benefit from the knowledge of the positions of communication terminals, there has been increasing interest in leveraging position data to reduce the overhead in mmWave beam prediction. Prior work, however, studied this problem using only synthetic data that generally does not accurately represent real-world measurements. In this paper, we investigate position-aided beam prediction using a real-world large-scale dataset to derive insights into precisely how much overhead can be saved in practice. Furthermore, we analyze which machine learning algorithms perform best, what factors degrade inference performance in real data, and which machine learning metrics are more meaningful in capturing the actual communication system performance.
 
 # License and Referencing
 This code package is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-nc-sa/4.0/). 
