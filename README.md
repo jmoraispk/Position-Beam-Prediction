@@ -9,8 +9,8 @@ The scripts for generating the results in the paper. The data consists of Scenar
 
 **To reproduce the results, please follow these steps:**
 1. Download (or clone) the repository.
-2- (optional) Download scenario data & convert to NumPy for fast reading (or use data provided in Gathered data folder)
-3- Run 2-normalize_split_train_test_plot.py script
+2. (optional) Download scenario data & convert to NumPy for fast reading (or use data provided in Gathered data folder)
+3. Run 2-normalize_split_train_test_plot.py script
 	- change number of beams, number of runs, scenarios, AI approaches, plots, etc.
 	- append results in csv file / excel sheel for analysis
 
