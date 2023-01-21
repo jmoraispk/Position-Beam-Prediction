@@ -8,9 +8,11 @@ João Morais, and Ahmed Alkhateeb, "[Position Aided Beam prediction: How useful 
 The scripts for generating the results in the paper. The data consists of Scenarios 1-9 of DeepSense6G dataset.
 
 **To reproduce the results, please follow these steps:**
-1. Download (or clone) the repository into a directory.
-2. Change parameters as needed, like algorithm to use, or number of beams, in 2-normalize_split_train_test_plot.py.
-3. Run 2-normalize_split_train_test_plot.py file.
+1. Download (or clone) the repository.
+2- (optional) Download scenario data & convert to NumPy for fast reading (or use data provided in Gathered data folder)
+3- Run 2-normalize_split_train_test_plot.py script
+	- change number of beams, number of runs, scenarios, AI approaches, plots, etc.
+	- append results in csv file / excel sheel for analysis
 
 Note: a version of the data is already included in the repository, under "Gathered_data_DEV". For downloading the data in the standard format, in case other types of experiments are required, visit the [Scenarios page](https://deepsense6g.net/scenarios/).
 
