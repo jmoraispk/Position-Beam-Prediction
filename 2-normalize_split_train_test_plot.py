@@ -6,6 +6,7 @@ Created on Aug 15
 """
 
 import os
+import time
 import copy
 import torch
 import datetime
@@ -14,26 +15,27 @@ import numpy as np
 import pandas as pd
 
 import train_test_func as func
+import matplotlib.pyplot as plt
 
 # Folder with the outputs from loader.py:
 gathered_data_folder = os.path.join(os.getcwd(), 'Gathered_data_DEV')
 # Where every result folder will be saved too:
-save_folder =  os.path.join(os.getcwd(), r'saved_folder\results')
+save_folder =  os.path.join(os.getcwd(), f'saved_folder/results_{time.time()}')
 
 # Variables to loop
-ai_strategies = ['KNN', 'LT', 'NN']       # 'KNN', 'LT', 'NN'
+ai_strategies = ['KNN']       # 'KNN', 'LT', 'NN'
 norm_types = [1]                     # [1,2,3,4,5]
-scen_idxs = [1] #np.arange(1,9+1)   # [1,2,3,4,5,6,7,9]
+scen_idxs = [1,2,3] #np.arange(1,9+1)   # [1,2,3,4,5,6,7,9]
 n_beams_list = [64]          # [8, 16,32,64]
 noises = [0]                         # position noise in meters
-n_reps = 1                           # number repetitions of current settings.
+n_reps = 5                           # number repetitions of current settings.
 
 # Variables constant across simulation
-use_cal_pos_for_scen = [3,4,8,9]        # [3,4,9] 8 also needs it!
+use_cal_pos_for_scen = [3,4,8,9]      # These scenarios needed calibration.
 max_samples = 1e5                     # max samples to consider per scenario
-n_avgs = 1                           # number of runs to average
+n_avgs = 5                            # number of runs to average
 train_val_test_split = [60,20,20]     # 0 on val uses test set to validate.    
-top_beams = np.arange(5) + 1  # Collect stats for Top X predictions
+top_beams = np.arange(5) + 1          # Collect stats for Top X predictions
 force_seed = -1                       # When >= 0, sets data randimzation 
                                       # seed. Useful for data probing.
                                       # Otherwise, seed = run_idx.
@@ -50,7 +52,7 @@ quantize_input = True                 # if False, ignores the value above.
 
 # KNN
 n_knn = 5                             # number of neighbors
-use_best_n_knn = False                 # if True, ignores the value above.
+use_best_n_knn = False                # if True, ignores the value above.
 BEST_N_PER_SCENARIO_KNN = \
     [5,24,65,28,9,5,13,80,54]         # best n measured in each scenario
                 
@@ -78,8 +80,7 @@ for scen_idx, n_beams, norm_type, noise, rep in combinations:
     data_folder = os.path.join(os.getcwd(), f'Ready_data_norm{norm_type}')
     
     # The saved folder will have all experiments conducted. 
-    experiment_name = func.get_experiment_name(scen_idx, n_beams, norm_type, 
-                                               noise)
+    experiment_name = func.get_experiment_name(scen_idx, n_beams, norm_type, noise)
     saved_path = os.path.join(save_folder, experiment_name)
                               
     
@@ -275,7 +276,7 @@ for scen_idx, n_beams, norm_type, noise, rep in combinations:
                 
                 # Take the mode of the best beam of the n closest neighbors
                 best_beams_n_neighbors = y_train[neighbors_sorted_by_dist[:n]]
-                pred_beams.append(func.mode_list(best_beams_n_neighbors))
+                pred_beams.append(np.array(func.mode_list(best_beams_n_neighbors)))
                 
         # 2- Lookup Table
         if ai_strategy == 'LT' and run_idx <= n_avgs:
@@ -304,7 +305,7 @@ for scen_idx, n_beams, norm_type, noise, rep in combinations:
                 pred = prediction_per_bin[func.pos_to_bin(x, bin_size, n_bins)]
                 if pred.size == 0:
                     pred = [int(np.random.uniform(0, n_beams))]
-                pred_beams.append(pred)
+                pred_beams.append(np.asarray(pred))
                     
                 
         # 3- NN
@@ -430,8 +431,8 @@ for scen_idx, n_beams, norm_type, noise, rep in combinations:
                 
         ######## General Predictor evaluation ########
         if evaluate_predictors:
-            evaluations = ['confusion_matrix', 'prediction_error',
-                           'prediction_error2', 'positions_colored_by_error']
+            evaluations = ['confusion_matrix', 'prediction_error2',
+                           'positions_colored_by_error']
             func.evaluate_predictors(evaluations, pred_beams, x_test, y_test, 
                                      n_beams, scen_idx, ai_strategy, n, run_folder)
             
@@ -456,9 +457,8 @@ for scen_idx, n_beams, norm_type, noise, rep in combinations:
                                    norm_type, x_train, y_train, x_val, 
                                    y_val, x_test, y_test)
             
-#%%    
+#%% Put results together in excell
 if True:
-# code to put excel together.
     # Variables to loop
     stats_to_collect = ['val_acc', 'test_acc', 'pwr']
     
@@ -566,3 +566,145 @@ if True:
     now_time = datetime.datetime.now().strftime('%m-%d-%Y_%Hh-%Mm-%Ss')
     df.to_csv(os.path.join(save_folder, 'results_' + now_time + '.csv'), index=False)
     # df.to_csv('last_results.csv', index=False)
+
+
+#%% Computing performance of KNN & Look-up table for all parameter values
+if False:
+    test_KNN_all_n = False
+    test_lookup_all_n = True
+    
+    scen_idxs = np.arange(1,9+1)
+    
+    for scen_idx in scen_idxs:
+        
+        # The saved folder will have all experiments conducted. 
+        saved_path = func.join_paths([os.getcwd(), 'saved_folder', f'scenario {scen_idx}'])
+        
+        # Create dir if doesn't exist
+        if not os.path.isdir(saved_path):
+            os.mkdir(saved_path)
+            
+        # Load data from data_folder
+        x_train = np.load(os.path.join(data_folder, f"scenario{scen_idx}_x_train.npy"))
+        y_train = np.load(os.path.join(data_folder, f"scenario{scen_idx}_y_train.npy"))
+        x_test = np.load(os.path.join(data_folder, f"scenario{scen_idx}_x_test.npy"))
+        y_test = np.load(os.path.join(data_folder, f"scenario{scen_idx}_y_test.npy"))
+        
+        if test_KNN_all_n :
+            vals_to_test = np.arange(1,100+1)
+            n_vals_to_test = len(vals_to_test)
+            
+            # This is exactly as above, see the comments there.
+            test_KNN_accs = np.zeros((n_vals_to_test, n_top_stats))
+            for n_idx in range(n_vals_to_test):
+                n = vals_to_test[n_idx]
+                print(f'Doing KNN for n = {n:<2}')
+                
+                pred_beams = []
+                
+                np.random.seed(0)
+                total_hits = np.zeros(n_top_stats)
+                for sample_idx in range(n_test_samples):
+                    test_sample = x_test[sample_idx]
+                    test_label = y_test[sample_idx]
+                    
+                    distances = np.sqrt(np.sum((x_train - test_sample)**2, axis=1))
+                    
+                    neighbors_sorted_by_dist = np.argsort(distances)
+                    
+                    best_beams_n_neighbors = y_train[neighbors_sorted_by_dist[:n]]
+                    pred_beams.append(func.mode_list(best_beams_n_neighbors))
+                    
+                    for i in range(n_top_stats):
+                        hit = np.any(pred_beams[-1][:top_beams[i]] == test_label)
+                        total_hits[i] += 1 if hit else 0
+                
+                test_KNN_accs[n_idx] = total_hits / n_test_samples
+            
+            best_n = np.argmax(test_KNN_accs[:,0]) + 1
+            # Plot the accuracy for each value of n
+            f = plt.figure(figsize=(7,4), constrained_layout=True) # PUT BACK TO 7,4
+            plt.plot(vals_to_test, np.round(test_KNN_accs*100,2))
+            plt.legend([f"Top-{i} Accuracy" for i in top_beams], loc='upper right',
+                        bbox_to_anchor=(1.36, 1.025))
+            plt.xlabel('Number of neighbors')
+            plt.ylabel('Accuracy')
+            plt.title(f'Scenario {scen_idx} KNN Performance for all N (best N = {best_n})')
+            plt.minorticks_on()
+            plt.grid()
+            plt.savefig(os.path.join(saved_path, f'KNN_test_all_N_scen{scen_idx}.pdf'),
+                        bbox_inches = "tight")
+            # bbox_inches = "tight" is needed if we are putting things outside the 
+            # normal canvas size. This is what 'inline' in Spyder uses when displaying
+        
+        ########
+        
+        if test_lookup_all_n:
+            
+            # List of predicted beams for the test set
+            n_labels = 64
+            top_beams = [1,2,3,5]
+            n_top_stats = len(top_beams)
+            n_test_samples = len(x_test)
+            acc = np.zeros(n_top_stats)
+                
+            vals_to_test = np.arange(1,50+1)
+            n_vals_to_test = len(vals_to_test)
+            test_LT_accs =  np.zeros((n_vals_to_test, n_top_stats))
+            
+            for n_idx, n in enumerate(vals_to_test):
+                print(f'Doing Look-up Table for n = {n:<2}')
+                
+                pred_beams = []
+                
+                np.random.seed(0)
+                total_hits = np.zeros(n_top_stats)
+                
+                # 1- Define bins
+                n_bins_across_x1 = n
+                n_bins_across_x2 = n
+                bin_size = np.array([1,1]) / [n_bins_across_x1, n_bins_across_x2]
+                n_bins = n_bins_across_x1 * n_bins_across_x2
+                
+                # 2- Create a list with the samples per bin
+                samples_per_bin = [[] for bin_idx in range(n_bins)]
+                
+                # 3- Map each input to a bin
+                for x_idx, x in enumerate(x_train):
+                    samples_per_bin[func.pos_to_bin(x, bin_size, n_bins)].append(x_idx)
+                
+                # 4- Define the values to predict for samples in that bin
+                prediction_per_bin = [func.mode_list(y_train[samples_per_bin[bin_idx]])
+                                      for bin_idx in range(n_bins)]
+                
+                # 5- Evaluation phase. Map each test sample to a bin and get the 
+                #    prediction.
+                for idx, x in enumerate(x_test):
+                    pred_beams.append(prediction_per_bin[func.pos_to_bin(x, bin_size, n_bins)])
+                
+                    # 6- Get top-1, top-2, top-3 and top-5 accuracies
+                    for i in range(n_top_stats):
+                        hit = np.any(pred_beams[-1][:top_beams[i]] == y_test[idx])
+                        total_hits[i] += 1 if hit else 0
+            
+                # Average the number of correct guesses (over the total samples)
+                test_LT_accs[n_idx] = np.round(total_hits / n_test_samples, 4)
+            
+            
+            best_n = np.argmax(test_LT_accs[:,0]) + 1
+            
+            # Plot the accuracy for each value of n
+            f = plt.figure(figsize=(6,4), constrained_layout=True)
+            plt.plot(vals_to_test, np.round(test_LT_accs*100,2))
+            # plt.legend([f"Top-{i} Accuracy" for i in top_beams], loc='upper right',
+            #             bbox_to_anchor=(1.36, 1.025))
+            plt.xlabel('Number of Quantization bins of each coordinate')
+            plt.ylabel('Accuracy [%]')
+            plt.title(f'Scenario {scen_idx} Look-up Table Performance for all N (best N = {best_n})')
+            plt.minorticks_on()
+            plt.grid()
+            plt.savefig(os.path.join(saved_path, f'LookupTable_test_all_N_scen{scen_idx}.pdf'),
+                        bbox_inches = "tight")
+            # bbox_inches = "tight" is needed if we are putting things outside the 
+            # normal canvas size. This is what 'inline' in Spyder uses when displaying
+            

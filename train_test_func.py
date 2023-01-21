@@ -942,7 +942,7 @@ def lookup_table_plots(lt_plots, n_beams, scen_idx, run_folder,
                         ha='center', va='bottom') 
         # ax.set_xticks(label_range[::3])
         plt.title(f'Scenario {scen_idx} - Beam frequency in train set')
-        plt.xlabel('Beam index')
+        plt.xlabel('Bin index')
         plt.ylabel('Frequency')
         fig.tight_layout()
         plt.savefig(os.path.join(run_folder, 'beam_freq_in_training_set.pdf'))
@@ -959,11 +959,14 @@ def lookup_table_plots(lt_plots, n_beams, scen_idx, run_folder,
         
     
 def evaluate_predictors(evaluations, pred_beams, x_test, y_test, n_beams, 
-                        scen_idx, ai_strategy, n, run_folder):
+                        scen_idx, ai_strategy, n, run_folder, save=False):
     
     if evaluations == 'all':
         evaluations = ['confusion_matrix', 'prediction_error',
                        'prediction_error2', 'positions_colored_by_error']
+    
+    # if type(prediction) == list:
+    #     prediction = np.asarray(prediction)
     
     best_pred_beam_per_sample = [prediction[0] \
          if prediction.size > 0 else round(np.random.uniform(1,64))
@@ -987,20 +990,22 @@ def evaluate_predictors(evaluations, pred_beams, x_test, y_test, n_beams,
         ax.locator_params(axis='x', nbins=8)
         plt.title(f'Scenario {scen_idx} - {ai_strategy} Confusion Matrix (N={n})')
         plt_name = f'scen_{scen_idx}_{ai_strategy}_confusion_matrix_N={n}.pdf'
-        plt.savefig(os.path.join(run_folder, plt_name))
+        if save:
+            plt.savefig(os.path.join(run_folder, plt_name))
         
     if 'prediction_error' in evaluations:
         # Plot Prediction Error
+        max_lim = np.max((pred_errors.max(), np.abs(pred_errors.min())))
         plt.figure()
         plt.scatter(true_labels, pred_errors, s=13, color='red')
         plt.xlabel('Ground-Truth Beam')
         plt.ylabel('Prediction Error')
         plt.grid(linestyle='--')
-        max_lim = np.max((pred_errors.max(), np.abs(pred_errors.min())))
         plt.ylim([-max_lim-1, max_lim+1])
         plt.title(f'Scenario {scen_idx} - {ai_strategy} Prediction Error (N={n})')
         plt_name = f'scen_{scen_idx}_{ai_strategy}_pred_errors_N={n}.pdf'
-        plt.savefig(os.path.join(run_folder, plt_name))
+        if save:
+            plt.savefig(os.path.join(run_folder, plt_name))
     
     
     if 'prediction_error2' in evaluations:
@@ -1041,7 +1046,8 @@ def evaluate_predictors(evaluations, pred_beams, x_test, y_test, n_beams,
         plt.ylim([-max_lim-1, max_lim+1])
         plt.title(f'Scenario {scen_idx} - {ai_strategy} Prediction Error (N={n})')
         plt_name = f'scen_{scen_idx}_{ai_strategy}_pred_errors_N={n}.pdf'
-        plt.savefig(os.path.join(run_folder, plt_name))
+        if save:
+            plt.savefig(os.path.join(run_folder, plt_name))
     
     
     if 'positions_colored_by_error' in evaluations:
@@ -1064,7 +1070,8 @@ def evaluate_predictors(evaluations, pred_beams, x_test, y_test, n_beams,
         plt.title(f'Scenario {scen_idx} - {ai_strategy} ' + \
                   f'Prediction Error of each test sample (N={n})')
         plt_name = f'scen_{scen_idx}_{ai_strategy}_pos_map_error_N={n}.pdf'
-        plt.savefig(os.path.join(run_folder, plt_name))
+        if save:
+            plt.savefig(os.path.join(run_folder, plt_name))
     
     
 def prediction_map(N, ai_strategy, n_beams, scen_idx, run_folder,
@@ -1229,4 +1236,4 @@ def plot_data_probing(training_or_testing_sets, data_plots, ai_strategy,
             fig.tight_layout()
             plt.savefig(os.path.join(runs_folder, 
                                      f'beam_freq_{chosen_set}_set.pdf'))
-    
+
