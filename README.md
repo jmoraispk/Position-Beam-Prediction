@@ -1,7 +1,7 @@
 # Position Aided Beam prediction: How useful GPS locations actually are?
 This is a python code package related to the following article:
 
-João Morais, and Ahmed Alkhateeb, "[Position Aided Beam prediction: How useful GPS locations actually are?](https://arxiv.org/abs/2205.09054)". (submitted to Globecomm 2022)
+João Morais, and Ahmed Alkhateeb, "[Position Aided Beam prediction: How useful GPS locations actually are?](https://arxiv.org/abs/2205.09054)". (accepted in ICC 2023)
 
 # Instructions to Reproduce the Results
 
