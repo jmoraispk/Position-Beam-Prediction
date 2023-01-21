@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Sep 14 13:02:42 2021
-
-@author: jamorais
+@author: Joao
 """
 
 import os

@@ -2,7 +2,7 @@
 """
 Created on Aug 15
 
-@author: Morais
+@author: Joao
 """
 
 import os

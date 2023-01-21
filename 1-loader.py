@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Aug 17 2021
-
 @author: Joao
 
 Objetive: 
